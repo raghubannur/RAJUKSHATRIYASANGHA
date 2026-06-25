@@ -653,14 +653,20 @@
         </div>
         <div class="form-group">
           <label>Family Name</label>
-          <input type="text" id="family_name" placeholder="Family / surname">
+          <select id="family_name"><option value="">— Select Gothram first —</option></select>
         </div>
       </div>
 
       <div class="form-row cols-3">
         <div class="form-group">
           <label>Gothram</label>
-          <input type="text" id="gothram" placeholder="Gothram">
+          <select id="gothram" onchange="updateFamilyNames()">
+            <option value="">— Select Gothram —</option>
+            <option>Kashyapa (Kashi)</option>
+            <option>Dhananjaya</option>
+            <option>Pashupathi</option>
+            <option>Vasista</option>
+          </select>
         </div>
         <div class="form-group">
           <label>Rasi</label>
@@ -843,8 +849,51 @@
 <script>
 // ── Google Sheets Integration (demo mode) ──────────────────────────────────
 // Replace SHEET_ID and SCRIPT_URL with your own Google Apps Script Web App URL
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrRSiCPG00X9mMFbPHHqrOqGmIKaqoQ2siOBElyK6Jpgly0rtjuaGHNAVUoaOddT4I/exec"; // TODO: Replace with deployed script URL
-const DEMO_MODE = false; // Set false when using real Google Sheets
+const GOOGLE_SCRIPT_URL = "YOUR_APPS_SCRIPT_URL_HERE"; // TODO: Replace with deployed script URL
+const DEMO_MODE = true; // Set false when using real Google Sheets
+
+// ── Gothram → Family Name mapping ─────────────────────────────────────────
+const GOTHRAM_FAMILY_MAP = {
+  "Kashyapa (Kashi)": [
+    "Pathapati", "Cholaraju"
+  ],
+  "Dhananjaya": [
+    "Sagiraju", "Nalluru", "Yampalli", "Keerthipati"
+  ],
+  "Pashupathi": [
+    "Konduru", "Chitraju", "Nagalapati", "Kanju", "Kumararaju"
+  ],
+  "Vasista": [
+    "Madhiraju", "Nadempalli", "Kosuru", "Yelavarthi", "Kakarlapudi",
+    "Shyamanthapudi", "Ulchi", "Malraju", "Chamarthi", "Panditi", "Savarthi"
+  ]
+};
+
+function updateFamilyNames() {
+  const gothram = document.getElementById('gothram').value;
+  const familySelect = document.getElementById('family_name');
+  const families = GOTHRAM_FAMILY_MAP[gothram] || [];
+
+  familySelect.innerHTML = '';
+
+  if (!gothram) {
+    familySelect.innerHTML = '<option value="">— Select Gothram first —</option>';
+    return;
+  }
+
+  if (families.length === 0) {
+    familySelect.innerHTML = '<option value="">— No families listed —</option>';
+    return;
+  }
+
+  familySelect.innerHTML = '<option value="">— Select Family Name —</option>';
+  families.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    familySelect.appendChild(opt);
+  });
+}
 
 // ── Family rows counter ────────────────────────────────────────────────────
 let familyRowCount = 0;
@@ -963,8 +1012,6 @@ function populateForm(m) {
   set('mother_name',       m['Mother / Wife Name']);
   set('dob',               m['Date of Birth']);
   set('age',               m['Age']);
-  set('family_name',       m['Family Name']);
-  set('gothram',           m['Gothram']);
   set('rasi',              m['Rasi']);
   set('native_place',      m['Native Place']);
   set('present_address',   m['Present Address']);
@@ -980,6 +1027,17 @@ function populateForm(m) {
   if (m['Gender']) {
     const gRadio = document.querySelector(`input[name="gender"][value="${m['Gender']}"]`);
     if (gRadio) gRadio.checked = true;
+  }
+
+  // Gothram dropdown → then populate family names → then set family name
+  if (m['Gothram']) {
+    const gothramEl = document.getElementById('gothram');
+    gothramEl.value = m['Gothram'];
+    updateFamilyNames(); // populate family dropdown first
+    setTimeout(() => {
+      const familyEl = document.getElementById('family_name');
+      if (familyEl && m['Family Name']) familyEl.value = m['Family Name'];
+    }, 50);
   }
 }
 

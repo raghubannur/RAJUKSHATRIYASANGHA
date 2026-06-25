@@ -457,7 +457,48 @@
   .toast.show { transform: translateX(-50%) translateY(0); }
   .toast.err { background: var(--error); }
 
- /* Responsive */
+  /* Office use section */
+  .office-section {
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-top: 20px;
+    background: #f8f9fc;
+  }
+  .office-section-title {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .office-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+  .office-box {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px;
+    background: white;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    min-height: 48px;
+  }
+  .office-box .sig-line {
+    border-top: 1px solid var(--border);
+    margin-top: 24px;
+    padding-top: 4px;
+    font-size: 10px;
+  }
+
+  /* Responsive */
   @media (max-width: 600px) {
     .form-row.cols-2, .form-row.cols-3, .form-row.cols-1-2 {
       grid-template-columns: 1fr;
@@ -572,11 +613,15 @@
         </div>
         <div>
           <label style="font-size:11px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:6px">Photo <small style="color:var(--muted)">(Passport)</small></label>
-          <div class="photo-upload" id="photo-upload-zone" onclick="document.getElementById('photo-input').click()">
+          <div class="photo-upload" id="photo-upload-zone">
             <input type="file" id="photo-input" accept="image/*">
-            <div class="upload-hint">
+            <input type="file" id="camera-input" accept="image/*" capture="user">
+            <div class="upload-hint" id="photo-hint">
               <div class="upload-icon">📷</div>
-              Upload Photo
+              <div style="display:flex;flex-direction:column;gap:5px;width:100%;padding:0 6px">
+                <button type="button" onclick="document.getElementById('camera-input').click()" style="background:var(--navy);color:white;border:none;border-radius:4px;padding:5px 4px;font-size:10px;font-weight:700;cursor:pointer;width:100%">📸 Camera</button>
+                <button type="button" onclick="document.getElementById('photo-input').click()" style="background:var(--gold);color:var(--navy);border:none;border-radius:4px;padding:5px 4px;font-size:10px;font-weight:700;cursor:pointer;width:100%">🖼 Gallery</button>
+              </div>
             </div>
           </div>
         </div>
@@ -586,11 +631,19 @@
       <div class="form-row cols-2">
         <div class="form-group">
           <label>Father / Husband Name <span class="req">*</span></label>
-          <input type="text" id="father_name" placeholder="Father or husband's name">
+          <select id="father_type" style="margin-bottom:6px">
+            <option value="Father">Father</option>
+            <option value="Husband">Husband</option>
+          </select>
+          <input type="text" id="father_name" placeholder="Enter name">
         </div>
         <div class="form-group">
           <label>Mother / Wife Name</label>
-          <input type="text" id="mother_name" placeholder="Mother or wife's name">
+          <select id="mother_type" style="margin-bottom:6px">
+            <option value="Mother">Mother</option>
+            <option value="Wife">Wife</option>
+          </select>
+          <input type="text" id="mother_name" placeholder="Enter name">
         </div>
       </div>
 
@@ -692,8 +745,11 @@
 
       <!-- Footer -->
       <div class="form-footer">
+        <p class="certify-text">We hereby certify that the above furnished details are true and correct to the best of my/our knowledge.</p>
         <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:16px">
           <div style="text-align:right">
+            <div style="border-bottom:1px solid var(--text);width:180px;height:32px"></div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Applicant Signature</div>
           </div>
         </div>
         <button class="btn-submit" id="submit-btn" onclick="submitForm()">
@@ -789,7 +845,7 @@
 <script>
 // ── Google Sheets Integration (demo mode) ──────────────────────────────────
 // Replace SHEET_ID and SCRIPT_URL with your own Google Apps Script Web App URL
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxd93MGk0CTpcsq50XHDW4KgIOu7JUrRkInBwWKrasiSXbOkm0KGYNHMoBu4HiWu2nQ/exec"; // TODO: Replace with deployed script URL
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxb_z6gIjLQl3QSCL4Me8izR2oIcJ_XmilrQHZeNJP9hzw6ReFskCB1Md0i4pe4JVG8/exec"; // TODO: Replace with deployed script URL
 const DEMO_MODE = false; // Set false when using real Google Sheets
 
 // ── Gothram → Family Name mapping ─────────────────────────────────────────
@@ -1012,19 +1068,48 @@ document.getElementById('present_address').addEventListener('input', function() 
 
 // ── Photo preview ──────────────────────────────────────────────────────────
 let photoDataURL = null;
-document.getElementById('photo-input').addEventListener('change', function(e) {
-  const file = e.target.files[0];
+
+function handlePhotoFile(file) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = function(ev) {
     photoDataURL = ev.target.result;
     const zone = document.getElementById('photo-upload-zone');
-    zone.innerHTML = `<input type="file" id="photo-input" accept="image/*" style="display:none"><img src="${photoDataURL}" style="width:100%;height:100%;object-fit:cover;border-radius:4px">`;
-    zone.onclick = () => document.getElementById('photo-input').click();
-    document.getElementById('photo-input').addEventListener('change', arguments.callee.caller);
+    zone.innerHTML = `
+      <input type="file" id="photo-input" accept="image/*" style="display:none">
+      <input type="file" id="camera-input" accept="image/*" capture="user" style="display:none">
+      <img src="${photoDataURL}" style="width:100%;height:100%;object-fit:cover;border-radius:4px;position:absolute;top:0;left:0">
+      <button type="button" onclick="retakePhoto(event)" style="position:absolute;bottom:4px;right:4px;background:rgba(26,39,68,0.85);color:white;border:none;border-radius:4px;padding:3px 7px;font-size:10px;font-weight:700;cursor:pointer;z-index:2">✏️ Change</button>
+    `;
+    // Re-attach listeners
+    document.getElementById('photo-input').addEventListener('change', e => handlePhotoFile(e.target.files[0]));
+    document.getElementById('camera-input').addEventListener('change', e => handlePhotoFile(e.target.files[0]));
   };
   reader.readAsDataURL(file);
-});
+}
+
+function retakePhoto(e) {
+  e.stopPropagation();
+  // Show choice buttons again
+  const zone = document.getElementById('photo-upload-zone');
+  zone.innerHTML = `
+    <input type="file" id="photo-input" accept="image/*" style="display:none">
+    <input type="file" id="camera-input" accept="image/*" capture="user" style="display:none">
+    <div class="upload-hint" id="photo-hint">
+      <div class="upload-icon">📷</div>
+      <div style="display:flex;flex-direction:column;gap:5px;width:100%;padding:0 6px">
+        <button type="button" onclick="document.getElementById('camera-input').click()" style="background:var(--navy);color:white;border:none;border-radius:4px;padding:5px 4px;font-size:10px;font-weight:700;cursor:pointer;width:100%">📸 Camera</button>
+        <button type="button" onclick="document.getElementById('photo-input').click()" style="background:var(--gold);color:var(--navy);border:none;border-radius:4px;padding:5px 4px;font-size:10px;font-weight:700;cursor:pointer;width:100%">🖼 Gallery</button>
+      </div>
+    </div>
+  `;
+  photoDataURL = null;
+  document.getElementById('photo-input').addEventListener('change', e => handlePhotoFile(e.target.files[0]));
+  document.getElementById('camera-input').addEventListener('change', e => handlePhotoFile(e.target.files[0]));
+}
+
+document.getElementById('photo-input').addEventListener('change', e => handlePhotoFile(e.target.files[0]));
+document.getElementById('camera-input').addEventListener('change', e => handlePhotoFile(e.target.files[0]));
 
 // ── Toast ──────────────────────────────────────────────────────────────────
 function showToast(msg, isErr = false) {
@@ -1112,7 +1197,9 @@ async function submitForm() {
     dob,
     age: document.getElementById('age').value,
     blood_group: document.getElementById('blood_group').value,
+    father_type: document.getElementById('father_type').value,
     father_name: document.getElementById('father_name').value.trim(),
+    mother_type: document.getElementById('mother_type').value,
     mother_name: document.getElementById('mother_name').value.trim(),
     family_name: document.getElementById('family_name').value.trim(),
     gothram: document.getElementById('gothram').value.trim(),

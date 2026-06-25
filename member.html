@@ -695,11 +695,11 @@
       <!-- Addresses -->
       <div class="form-row cols-2">
         <div class="form-group">
-          <label>Present Address <span class="req">*</span></label>
+          <label>Present Address<span class="req">*</span></label>
           <textarea id="present_address" rows="3" placeholder="Door No., Street, Area, City, PIN"></textarea>
         </div>
         <div class="form-group">
-          <label>Permanent Address</label>
+          <label>Permanent Address as per Aadar</label>
           <textarea id="permanent_address" rows="3" placeholder="If same as present, leave blank"></textarea>
           <label class="checkbox-label" style="margin-top:5px;font-size:12px">
             <input type="checkbox" id="same_address"> Same as present address
@@ -845,8 +845,8 @@
 <script>
 // ── Google Sheets Integration (demo mode) ──────────────────────────────────
 // Replace SHEET_ID and SCRIPT_URL with your own Google Apps Script Web App URL
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxb_z6gIjLQl3QSCL4Me8izR2oIcJ_XmilrQHZeNJP9hzw6ReFskCB1Md0i4pe4JVG8/exec"; // TODO: Replace with deployed script URL
-const DEMO_MODE = false; // Set false when using real Google Sheets
+const GOOGLE_SCRIPT_URL = "YOUR_APPS_SCRIPT_URL_HERE"; // TODO: Replace with deployed script URL
+const DEMO_MODE = true; // Set false when using real Google Sheets
 
 // ── Gothram → Family Name mapping ─────────────────────────────────────────
 const GOTHRAM_FAMILY_MAP = {

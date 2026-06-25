@@ -457,48 +457,7 @@
   .toast.show { transform: translateX(-50%) translateY(0); }
   .toast.err { background: var(--error); }
 
-  /* Office use section */
-  .office-section {
-    border: 1px dashed var(--border);
-    border-radius: var(--radius);
-    padding: 14px;
-    margin-top: 20px;
-    background: #f8f9fc;
-  }
-  .office-section-title {
-    text-align: center;
-    font-size: 12px;
-    font-weight: 800;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border);
-  }
-  .office-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 12px;
-  }
-  .office-box {
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 8px;
-    background: white;
-    font-size: 11px;
-    color: var(--muted);
-    text-align: center;
-    min-height: 48px;
-  }
-  .office-box .sig-line {
-    border-top: 1px solid var(--border);
-    margin-top: 24px;
-    padding-top: 4px;
-    font-size: 10px;
-  }
-
-  /* Responsive */
+ /* Responsive */
   @media (max-width: 600px) {
     .form-row.cols-2, .form-row.cols-3, .form-row.cols-1-2 {
       grid-template-columns: 1fr;
